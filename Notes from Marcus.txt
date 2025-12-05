@@ -1,0 +1,43 @@
+Struktur Boka Direkt.
+
+Kategorier:
+Frisör, Massage, Naglar, Fransar & Bryn, Hudvård, Skönhet, Hälsa, Övrigt.
+
+Salong/Tjänst:
+Bilder
+Betyg(antal omdömen)
+Personal(individuella betyg)
+länkar(instagram)
+Kontakt. main, telefon, adress, Stad
+Olika typer av tjänster uppdelat i kategorier. Tider från och med t.ex "idag 16:40"
+Priser.
+Recensioner ( Användare, till vilken personal, recension och betyg.)
+Boka-länk
+"Läs mer" ger en popup med längre beskrivning. Tex info om studentrabatt, extra kostnader vid tillval osv.
+Om företaget
+
+Bokning:
+Kalenderliknande "drop-down" med veckovy och endast de tillgängliga tiderna synliga. Tid och pris angivet i varje slot.
+
+Vid val av tid och bokning:
+Dina uppgifter namn och mail syns.
+Meddelande til företag(frivilligt)
+Godkänna villkor
+Välj betalsätt (betala på plats eller betala vid bokning.)
+
+
+Betalningsalternativ:
+Friskvårdskort(Köps med friskvårdsbidrag/pengar(swish,betalkort,google pay, qliro) eller kombo), Presentkort, 
+
+Sista minuten Rabatterade behandlingar "idag och imorgon"
+
+Användare:
+Förnamn, Efternamn, Kön, Födelsedatum, Telefonnummer, Mail, Favoriter(Salonger/Företag), Bokningar(Kommande/Avslutade)
+-Inget lösenord. Verifieringskod skickas til main varje inloggning på webben.
+
+Sökfält:
+"Vad vill du boka?"(Tjänst/Företag) samt "Var?"(Stad, ord eller område)
+
+Tankar för prompt i frontenden i senare skede:
+Få med kartan vart de olika salingerna/tjänsterna är lokaliserade.
+Sortera sökningen efter "närmast först" men också ha alternativet att ändra filtreringen efter t.ex pris, betyg, lediga tider osv.
