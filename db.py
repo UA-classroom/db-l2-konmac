@@ -1,5 +1,3 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 """
 This file is responsible for making database queries, which your fastapi endpoints/routes can use.
@@ -18,17 +16,75 @@ start with a connection parameter.
 """
 
 
-### THIS IS JUST AN EXAMPLE OF A FUNCTION FOR INSPIRATION FOR A LIST-OPERATION (FETCHING MANY ENTRIES)
-# def get_items(con):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("SELECT * FROM items;")
-#             items = cursor.fetchall()
-#     return items
+from db_setup import get_connection
+from psycopg2.extras import RealDictCursor
+from schemas import TreatmentCategoriesCreate, TreatmentsCreate
 
+
+def add_treatments(item: TreatmentsCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO treatments (treatment_name, treatment_description, category_id, time_duration, last_min_deal)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING *; 
+                """,
+                (item.treatment_name, item.treatment_description, item.category_id, item.time_duration, item.last_min_deal),
+            )
+            inserted =  cur.fetchone()
+            return inserted
+
+def add_treatment_categories(item: TreatmentCategoriesCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    #try:
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO treatment_categories (category_name)
+                VALUES (%s)
+                RETURNING *; 
+                """,
+                (item.category_name,),
+            )
+            inserted = cur.fetchone()
+            return inserted
+    #except 
+
+
+def get_treatment_categories():
+    conn = get_connection()
+    if conn is None:
+        return None
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM treatment_categories;")
+            treatment_categories = cursor.fetchall()
+    return treatment_categories
+
+
+
+### Fetching all data from TREATMENTS table
+def get_treatments():
+    conn = get_connection()
+    if conn is None:
+        return None
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM treatments;")
+            treatments = cursor.fetchall()
+    return treatments
+
+    
 
 ### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
-# def get_item(con, item_id):
+# def get_treatment(con, item_id):
 #     with con:
 #         with con.cursor(cursor_factory=RealDictCursor) as cursor:
 #             cursor.execute("""SELECT * FROM items WHERE id = %s""", (item_id,))

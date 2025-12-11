@@ -31,6 +31,7 @@ def get_connection():
         return connection
     except Exception as e:
         print(f"Connection failed - {e}")
+        return None
 
 def create_tables():
     """
