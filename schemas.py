@@ -32,7 +32,8 @@ class UsersCreate(BaseModel):
     created_at: str
 
 
-class Customer(BaseModel):
+class CustomersCreate(BaseModel):
+    user_id: int
     balance: float | None = None
 
 class BusinessCreate(BaseModel):
@@ -44,11 +45,21 @@ class BusinessCreate(BaseModel):
 
 class BusinessLocationsCreate(BaseModel):
     phone_number: str
+    business_id: int
     email: str
     street_address: str
     city: str
     postal_code: str
     country: str
-    longitude: float
-    latitude: float
+    longitude: float | None = None
+    latitude: float | None = None
 
+class OwnersCreate(BaseModel):
+    business_id: int
+    user_id: int
+
+class EmployeesCreate(BaseModel):
+    user_id: int
+    business_id: int
+    location_id: int
+    rating: int | None = None

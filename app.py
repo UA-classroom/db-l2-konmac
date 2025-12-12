@@ -2,12 +2,27 @@
 import psycopg2
 from db import (
     add_treatment_categories,
-    add_treatments,
+    add_treatment,
     get_treatment_categories,
-    get_treatments,
+    get_treatment,
+    add_owner,
+    get_owners,
+    add_employee,
+    get_employees,
+    add_business,
+    get_businesses,
+    add_business_location,
+    get_business_locations
 )
 from fastapi import FastAPI, HTTPException
-from schemas import TreatmentCategoriesCreate, TreatmentsCreate
+from schemas import(
+    TreatmentCategoriesCreate,
+    TreatmentsCreate,
+    OwnersCreate,
+    EmployeesCreate,
+    BusinessLocationsCreate,
+    BusinessCreate
+)
 
 app = FastAPI()
 
@@ -50,7 +65,7 @@ but will have different HTTP-verbs.
 @app.post("/treatments/")
 def create_treatment(treatment: TreatmentsCreate):
     try:
-        treatments = add_treatments(treatment)
+        treatments = add_treatment(treatment)
         return {"treatments": treatments,
                 "message": "Treatment added successfuly"}
     except psycopg2.errors.ForeignKeyViolation:
@@ -66,14 +81,21 @@ def create_treatment(treatment: TreatmentsCreate):
 ### 2. Create a new treatment category
 @app.post("/treatment_categories/")
 def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
-    treatment_categories = add_treatment_categories(treatment_category)
-    return {"treatments": treatment_categories,
-            "message": "Treatment category created successfuly"}
-
+    try:
+        treatment_categories = add_treatment_categories(treatment_category)
+        return {"treatments": treatment_categories,
+                "message": "Treatment category created successfuly"}
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Treatment already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
 ### 3. Get all treatments
 @app.get("/treatments/")
-def read_treatment():
-    treatments = get_treatments()
+def read_treatments():
+    treatments = get_treatment()
     return {"treatments": treatments}
 
 ### 4. Get all treatment categories
@@ -81,6 +103,95 @@ def read_treatment():
 def read_treatment_categories():
     treatments_categories = get_treatment_categories()
     return {"treatment_categories": treatments_categories}
+
+# Owners
+
+@app.post("/owners/")
+def create_owners(owner: OwnersCreate):
+    try:
+        owners = add_owner(owner)
+        return {"owners": owners,
+                "message": "Owner added successfuly"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Owner already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.get("/owners/")
+def read_owners():
+    owners = get_owners()
+    return {"owners": owners}
+
+
+# Employees
+
+@app.post("/employees/")
+def create_employees(employee: EmployeesCreate):
+    try:
+        employees = add_employee(employee)
+        return {"employees": employees,
+                "message": "Employee added successfuly!"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Employee already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.get("/employees/")
+def read_employees():
+    employees = get_employees()
+    return {"employees": employees}
+
+
+# Businesses
+
+@app.post("/businesses/")
+def create_business(business: BusinessCreate):
+    try:
+        businesses = add_business(business)
+        return {"businesses": businesses,
+                "message": "Business added successfuly!"}
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Business already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.get("/business/")
+def read_business():
+    businesses = get_businesses()
+    return {"businesses": businesses}
+
+
+# Business locations
+
+@app.post("/business_locations/")
+def create_business_location(business_location: BusinessLocationsCreate):
+    try:
+        business_locations = add_business_location(business_location)
+        return {"business locations": business_locations,
+                "message": "Business location added successfuly!"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Business location already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.get("/business_locations/")
+def read_business_locations():
+    business_locations = get_business_locations()
+    return {"business_locations": business_locations}
 
 
 
@@ -92,8 +203,10 @@ def read_treatment_categories():
 # 4.Bookings k 
 # 5.Owners m
 # 6.businesses m
-# 7.location_treatments m
+# 7.business locations m
 # 8.users k
+
+# la till: employees m
 
 
 # GET / POST 
