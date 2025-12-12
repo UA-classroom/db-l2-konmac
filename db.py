@@ -29,187 +29,222 @@ from schemas import (
 
 
 ### 1. Create a new treatment and return the created row
-def add_treatment(item: TreatmentsCreate):
+def add_treatments(item: TreatmentsCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                INSERT INTO treatments (treatment_name, treatment_description, category_id, time_duration, last_min_deal)
-                VALUES (%s, %s, %s, %s, %s)
-                RETURNING *; 
-                """,
-                (item.treatment_name, item.treatment_description, item.category_id, item.time_duration, item.last_min_deal),
-            )
-            inserted =  cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO treatments (treatment_name, treatment_description, category_id, time_duration, last_min_deal)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING *; 
+                    """,
+                    (item.treatment_name, item.treatment_description, item.category_id, item.time_duration, item.last_min_deal),
+                )
+                inserted =  cur.fetchone()
             return inserted
+    finally:
+        conn.close()
 
 ### 2. Create a new treatment category and return the created row
 def add_treatment_categories(item: TreatmentCategoriesCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                INSERT INTO treatment_categories (category_name)
-                VALUES (%s)
-                RETURNING *; 
-                """,
-                (item.category_name,),
-            )
-            inserted = cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO treatment_categories (category_name)
+                    VALUES (%s)
+                    RETURNING *; 
+                    """,
+                    (item.category_name,),
+                )
+                inserted = cur.fetchone()
             return inserted
+    finally:
+        conn.close()
 
 ### 3. Get all categories
-def get_treatment():
+def get_treatments():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM treatments;")
-            treatments = cur.fetchall()
-    return treatments
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM treatments;")
+                treatments = cur.fetchall()
+            return treatments
+    finally:
+        conn.close()
 
 ### 4. Get all treatment categories
 def get_treatment_categories():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM treatment_categories;")
-            treatment_categories = cur.fetchall()
-    return treatment_categories
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM treatment_categories;")
+                treatment_categories = cur.fetchall()
+            return treatment_categories
+    finally:
+        conn.close()
 
 # Owners
 
-def add_owner(owner: OwnersCreate):
+def add_owners(owner: OwnersCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                INSERT INTO owners (business_id, user_id)
-                VALUES (%s, %s)
-                RETURNING *;
-                """,
-                (owner.business_id, owner.user_id)
-            )
-            inserted = cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO owners (business_id, user_id)
+                    VALUES (%s, %s)
+                    RETURNING *;
+                    """,
+                    (owner.business_id, owner.user_id)
+                )
+                inserted = cur.fetchone()
             return inserted
-        
+    finally:
+        conn.close()
 
 def get_owners():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM owners;")
-            owners = cur.fetchall()
-    return owners
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM owners;")
+                owners = cur.fetchall()
+            return owners
+    finally:
+        conn.close()
 
 # Employees
 
-def add_employee(employee: EmployeesCreate):
+def add_employees(employee: EmployeesCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-            INSERT INTO employees (user_id, business_id, location_id, rating)
-            VALUES (%s, %s, %s, %s)
-            RETURNING *;
-            """,
-            (employee.user_id, employee.business_id, employee.location_id, employee.rating)
-            )
-            inserted = cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                INSERT INTO employees (user_id, business_id, location_id, rating)
+                VALUES (%s, %s, %s, %s)
+                RETURNING *;
+                """,
+                (employee.user_id, employee.business_id, employee.location_id, employee.rating)
+                )
+                inserted = cur.fetchone()
             return inserted
+    finally:
+        conn.close()
 
 def get_employees():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM employees;")
-            employees = cur.fetchall()
-    return employees
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM employees;")
+                employees = cur.fetchall()
+            return employees
+    finally:
+        conn.close()
 
 # Businesses
 
-def add_business(business: BusinessCreate):
+def add_businesses(business: BusinessCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-            INSERT INTO businesses (business_name, email, phone_number, about_text, number_of_employees)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING *;
-            """,
-            (business.business_name, business.email, business.phone_number, business.about_text, business.number_of_employees)
-            )
-            inserted = cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                INSERT INTO businesses (business_name, email, phone_number, about_text, number_of_employees)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING *;
+                """,
+                (business.business_name, business.email, business.phone_number, business.about_text, business.number_of_employees)
+                )
+                inserted = cur.fetchone()
             return inserted
+    finally:
+        conn.close()
 
 def get_businesses():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM businesses;")
-            businesses = cur.fetchall()
-    return businesses
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM businesses;")
+                businesses = cur.fetchall()
+            return businesses
+    finally:
+        conn.close()
 
 # Business locations
 
-def add_business_location(business_location: BusinessLocationsCreate):
+def add_business_locations(business_location: BusinessLocationsCreate):
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-            INSERT INTO business_locations (business_id, phone_number, email, street_address, city, postal_code, country, longitude, latitude)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING *;
-            """,
-            (business_location.business_id,
-            business_location.phone_number,
-            business_location.email,
-            business_location.street_address,
-            business_location.city,
-            business_location.postal_code,
-            business_location.country,
-            business_location.longitude,
-            business_location.latitude)
-            )
-            inserted = cur.fetchone()
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                INSERT INTO business_locations (business_id, phone_number, email, street_address, city, postal_code, country, longitude, latitude)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING *;
+                """,
+                (business_location.business_id,
+                business_location.phone_number,
+                business_location.email,
+                business_location.street_address,
+                business_location.city,
+                business_location.postal_code,
+                business_location.country,
+                business_location.longitude,
+                business_location.latitude)
+                )
+                inserted = cur.fetchone()
             return inserted
+    finally:
+        conn.close()
 
 def get_business_locations():
     conn = get_connection()
     if conn is None:
         return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM business_locations;")
-            business_locations = cur.fetchall()
-    return business_locations
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM business_locations;")
+                business_locations = cur.fetchall()
+            return business_locations
+    finally:
+        conn.close()
 
 
 

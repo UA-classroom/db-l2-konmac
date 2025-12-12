@@ -4,6 +4,7 @@
 
 
 from pydantic import BaseModel
+from datetime import date, datetime
 
 
 class TreatmentsCreate(BaseModel):
@@ -16,21 +17,13 @@ class TreatmentsCreate(BaseModel):
 class TreatmentCategoriesCreate(BaseModel):
     category_name: str
 
-class ImagesCreate(BaseModel):
-    pass
-
-class BookingsCreate(BaseModel):
-    pass
-
 class UsersCreate(BaseModel):
     email: str
     password: str
     first_name: str | None = None
     last_name: str | None = None
     phone_number: str | None = None
-    date_of_birth: str | None = None
-    created_at: str
-
+    date_of_birth: date | None = None
 
 class CustomersCreate(BaseModel):
     user_id: int
@@ -62,4 +55,4 @@ class EmployeesCreate(BaseModel):
     user_id: int
     business_id: int
     location_id: int
-    rating: int | None = None
+    rating: float | None = None
