@@ -1,41 +1,47 @@
--- DROP TABLE IF EXISTS employee_pricing CASCADE;
--- DROP TABLE IF EXISTS employee_time_slots CASCADE;
--- DROP TABLE IF EXISTS employee_specializations CASCADE;
--- DROP TABLE IF EXISTS locations_employees CASCADE;
--- DROP TABLE IF EXISTS opening_hours CASCADE;
--- DROP TABLE IF EXISTS business_service_categories CASCADE;
--- DROP TABLE IF EXISTS owners CASCADE;
--- DROP TABLE IF EXISTS employee_treatments CASCADE;
--- DROP TABLE IF EXISTS location_treatments CASCADE;
--- DROP TABLE IF EXISTS ticket_attachment CASCADE;
--- DROP TABLE IF EXISTS support_messages CASCADE;
--- DROP TABLE IF EXISTS support_tickets CASCADE;
--- DROP TABLE IF EXISTS support_agents CASCADE;
--- DROP TABLE IF EXISTS notifications CASCADE;
--- DROP TABLE IF EXISTS payment_attempts CASCADE;
--- DROP TABLE IF EXISTS refunds CASCADE;
--- DROP TABLE IF EXISTS payments CASCADE;
--- DROP TABLE IF EXISTS gift_cards CASCADE;
--- DROP TABLE IF EXISTS favorites CASCADE;
--- DROP TABLE IF EXISTS reviews CASCADE;
--- DROP TABLE IF EXISTS bookings CASCADE;
--- DROP TABLE IF EXISTS treatments CASCADE;
--- DROP TABLE IF EXISTS images CASCADE;
--- DROP TABLE IF EXISTS employees CASCADE;
--- DROP TABLE IF EXISTS business_locations CASCADE;
--- DROP TABLE IF EXISTS specializations CASCADE;
--- DROP TABLE IF EXISTS service_categories CASCADE;
--- DROP TABLE IF EXISTS sender_types CASCADE;
--- DROP TABLE IF EXISTS support_ticket_statuses CASCADE;
--- DROP TABLE IF EXISTS failed_statuses CASCADE;
--- DROP TABLE IF EXISTS payment_methods CASCADE;
--- DROP TABLE IF EXISTS payment_statuses CASCADE;
--- DROP TABLE IF EXISTS refund_statuses CASCADE;
--- DROP TABLE IF EXISTS booking_statuses CASCADE;
--- DROP TABLE IF EXISTS customers CASCADE;
--- DROP TABLE IF EXISTS treatment_categories CASCADE;
--- DROP TABLE IF EXISTS businesses CASCADE;
--- DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS employee_pricing CASCADE;
+DROP TABLE IF EXISTS employee_time_slots CASCADE;
+DROP TABLE IF EXISTS employee_specializations CASCADE;
+DROP TABLE IF EXISTS locations_employees CASCADE;
+DROP TABLE IF EXISTS opening_hours CASCADE;
+DROP TABLE IF EXISTS business_service_categories CASCADE;
+DROP TABLE IF EXISTS owners CASCADE;
+DROP TABLE IF EXISTS employee_treatments CASCADE;
+DROP TABLE IF EXISTS location_treatments CASCADE;
+DROP TABLE IF EXISTS ticket_attachment CASCADE;
+DROP TABLE IF EXISTS support_messages CASCADE;
+DROP TABLE IF EXISTS support_tickets CASCADE;
+DROP TABLE IF EXISTS support_agents CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS payment_attempts CASCADE;
+DROP TABLE IF EXISTS refunds CASCADE;
+DROP TABLE IF EXISTS payments CASCADE;
+DROP TABLE IF EXISTS gift_cards CASCADE;
+DROP TABLE IF EXISTS favorites CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS treatments CASCADE;
+DROP TABLE IF EXISTS images CASCADE;
+DROP TABLE IF EXISTS employees CASCADE;
+DROP TABLE IF EXISTS business_locations CASCADE;
+DROP TABLE IF EXISTS specializations CASCADE;
+DROP TABLE IF EXISTS service_categories CASCADE;
+DROP TABLE IF EXISTS sender_types CASCADE;
+DROP TABLE IF EXISTS support_ticket_statuses CASCADE;
+DROP TABLE IF EXISTS failed_statuses CASCADE;
+DROP TABLE IF EXISTS payment_methods CASCADE;
+DROP TABLE IF EXISTS payment_statuses CASCADE;
+DROP TABLE IF EXISTS refund_statuses CASCADE;
+DROP TABLE IF EXISTS booking_statuses CASCADE;
+DROP TABLE IF EXISTS customers CASCADE;
+DROP TABLE IF EXISTS treatment_categories CASCADE;
+DROP TABLE IF EXISTS businesses CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS gender_types CASCADE;
+
+CREATE TABLE gender_types (
+    gender_type_id SERIAL PRIMARY KEY,
+    gender_types VARCHAR(255)
+);
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
@@ -45,15 +51,9 @@ CREATE TABLE users (
     last_name VARCHAR(255),
     phone_number VARCHAR(20),
     date_of_birth DATE,
-    gender INT NOT NULL REFERENCES gender_types(gender_id),
-    profile_photo VARCHAR(200),
+    gender INT NOT NULL REFERENCES gender_types(gender_type_id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-CREATE TABLE gender_types (
-    gender_type_id SERIAL PRIMARY KEY,
-    gender_types VARCHAR(255)
-)
 
 CREATE TABLE businesses(
     business_id SERIAL PRIMARY KEY,
@@ -148,6 +148,7 @@ CREATE TABLE images (
     business_id INT REFERENCES businesses(business_id),
     employee_id INT REFERENCES employees(employee_id),
     location_id INT REFERENCES business_locations(location_id),
+    user_id INT REFERENCES users(user_id),
     image_url VARCHAR(255) NOT NULL
 );
 
