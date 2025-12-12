@@ -12,6 +12,7 @@ PASSWORD = os.getenv("PASSWORD")
 
 if not DATABASE_NAME or not PASSWORD:
     raise ValueError("DATABASE_NAME and PASSWORD must be set in .env file")
+#TODO: Ska vi ha value-error här? Error relaterat til connection eller liknande känns mer relevant?
 
 def get_connection():
     """

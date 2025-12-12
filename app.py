@@ -45,7 +45,7 @@ def create_treatment(treatment: TreatmentsCreate):
         treatments = add_treatments(treatment)
         return {"treatments": treatments}
     except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=404, detail="Wrong id sucker")
+        raise HTTPException(status_code=400, detail="Cetegory did not exist")
     
 
 
