@@ -24,35 +24,81 @@ Read more: https://www.geeksforgeeks.org/10-most-common-http-status-codes/
 but will have different HTTP-verbs.
 """
 
+# except psycopg2.IntegrityError as e:
+
+# IntegrityError is raised when a database constraint is violated, such as:
+
+# ❌ foreign key violation
+
+# ❌ unique constraint violation
+
+# ❌ NOT NULL violation
+
+# ❌ check constraint violation
+
+# Example causes:
+
+# invalid category_id (FK)
+
+# duplicate email
+
+# missing required column
+
+# negative value blocked by CHECK
+
+### 1. Create a new treatment
+@app.post("/treatments/")
+def create_treatment(treatment: TreatmentsCreate):
+    try:
+        treatments = add_treatments(treatment)
+        return {"treatments": treatments,
+                "message": "Treatment added successfuly"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid category ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Treatment already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
 
 
-# INSPIRATION FOR A LIST-ENDPOINT - Not necessary to use pydantic models, but we could to ascertain that we return the correct values
+### 2. Create a new treatment category
+@app.post("/treatment_categories/")
+def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
+    treatment_categories = add_treatment_categories(treatment_category)
+    return {"treatments": treatment_categories,
+            "message": "Treatment category created successfuly"}
+
+### 3. Get all treatments
 @app.get("/treatments/")
 def read_treatment():
     treatments = get_treatments()
     return {"treatments": treatments}
 
+### 4. Get all treatment categories
 @app.get("/treatments_categories/")
 def read_treatment_categories():
     treatments_categories = get_treatment_categories()
     return {"treatment_categories": treatments_categories}
 
 
-# INSPIRATION FOR A POST-ENDPOINT, uses a pydantic model to validate
-@app.post("/treatments/")
-def create_treatment(treatment: TreatmentsCreate):
-    try:
-        treatments = add_treatments(treatment)
-        return {"treatments": treatments}
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=404, detail="Wrong id sucker")
-    
+
+#TODO: Endpoints: owners, location_treatments, bookings, users, businesses, customers
+
+# 1.Treatments x
+# 2.Treatment_categories x
+# 3.Customers k
+# 4.Bookings k 
+# 5.Owners m
+# 6.businesses m
+# 7.location_treatments m
+# 8.users k
 
 
-@app.post("/treatment_categories/")
-def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
-    treatment_categories = add_treatment_categories(treatment_category)
-    return {"treatments": treatment_categories}
+# GET / POST 
+
+
 
 
 
