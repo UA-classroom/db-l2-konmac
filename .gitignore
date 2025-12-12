@@ -2,4 +2,4 @@ venv
 .venv
 .env
 .*env*
-description*
+description*__pycache__/

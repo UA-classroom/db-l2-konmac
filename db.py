@@ -21,6 +21,7 @@ from psycopg2.extras import RealDictCursor
 from schemas import TreatmentCategoriesCreate, TreatmentsCreate
 
 
+### 1. Create a new treatment and return the created row
 def add_treatments(item: TreatmentsCreate):
     conn = get_connection()
     if conn is None:
@@ -38,11 +39,11 @@ def add_treatments(item: TreatmentsCreate):
             inserted =  cur.fetchone()
             return inserted
 
+### 2. Create a new treatment category and return the created row
 def add_treatment_categories(item: TreatmentCategoriesCreate):
     conn = get_connection()
     if conn is None:
         return None
-    #try:
     with conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
@@ -55,9 +56,19 @@ def add_treatment_categories(item: TreatmentCategoriesCreate):
             )
             inserted = cur.fetchone()
             return inserted
-    #except 
 
+### 3. Get all categories
+def get_treatments():
+    conn = get_connection()
+    if conn is None:
+        return None
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM treatments;")
+            treatments = cursor.fetchall()
+    return treatments
 
+### 4. Get all treatment categories
 def get_treatment_categories():
     conn = get_connection()
     if conn is None:
@@ -70,16 +81,6 @@ def get_treatment_categories():
 
 
 
-### Fetching all data from TREATMENTS table
-def get_treatments():
-    conn = get_connection()
-    if conn is None:
-        return None
-    with conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM treatments;")
-            treatments = cursor.fetchall()
-    return treatments
 
     
 
