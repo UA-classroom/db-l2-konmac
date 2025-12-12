@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS gender_types CASCADE;
 
 CREATE TABLE gender_types (
-    gender_type_id SERIAL PRIMARY KEY,
+    gender_id SERIAL PRIMARY KEY,
     gender_types VARCHAR(255)
 );
 
@@ -51,9 +51,11 @@ CREATE TABLE users (
     last_name VARCHAR(255),
     phone_number VARCHAR(20),
     date_of_birth DATE,
-    gender INT NOT NULL REFERENCES gender_types(gender_type_id),
+    gender INT NOT NULL REFERENCES gender_types(gender_id),
+    profile_photo VARCHAR(200),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
 
 CREATE TABLE businesses(
     business_id SERIAL PRIMARY KEY,
@@ -148,7 +150,6 @@ CREATE TABLE images (
     business_id INT REFERENCES businesses(business_id),
     employee_id INT REFERENCES employees(employee_id),
     location_id INT REFERENCES business_locations(location_id),
-    user_id INT REFERENCES users(user_id),
     image_url VARCHAR(255) NOT NULL
 );
 
