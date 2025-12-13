@@ -73,7 +73,7 @@ def add_treatment_categories(item: TreatmentCategoriesCreate):
     finally:
         conn.close()
 
-### 3. Get all categories
+### 3. Get all treatments
 def get_treatments():
     conn = get_connection()
     if conn is None:
@@ -286,7 +286,7 @@ def get_users():
                         last_name,
                         phone_number,
                         date_of_birth,
-                        gender_id,
+                        gender,
                         created_at
                     FROM users;
                     """) # Skipping password to protect it
@@ -380,7 +380,6 @@ def update_user(user_id: int, item: UsersCreate):
     conn = get_connection()
     if conn is None:
         return None
-
     try:
         with conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -415,22 +414,29 @@ def update_user(user_id: int, item: UsersCreate):
     finally:
         conn.close()
 
-### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
-# def get_treatment(con, item_id):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("""SELECT * FROM items WHERE id = %s""", (item_id,))
-#             item = cursor.fetchone()
-#             return item
-
-
-### THIS IS JUST INSPIRATION FOR A CREATE-OPERATION
-# def add_item(con, title, description):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute(
-#                 "INSERT INTO items (title, description) VALUES (%s, %s) RETURNING id;",
-#                 (title, description),
-#             )
-#             item_id = cursor.fetchone()["id"]
-#     return item_id
+def update_customer(customer_id :int, item: CustomersCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE customers
+                    SET
+                        user_id = %s,
+                        balance = %s
+                    WHERE customer_id = %s
+                    RETURNING 
+                        customer_id, user_id, balance;
+                    """,
+                    (
+                        item.user_id,
+                        item.balance,
+                        customer_id,
+                    ),     
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()

@@ -19,8 +19,10 @@ from db import (
     update_user,
     add_gender_types,
     add_customers,
-    get_customers
+    get_customers,
+    update_customer
 )
+
 from fastapi import FastAPI, HTTPException, status
 from schemas import(
     TreatmentCategoriesCreate,
@@ -48,28 +50,6 @@ Read more: https://www.geeksforgeeks.org/10-most-common-http-status-codes/
 - Use correct URL paths the resource, e.g some endpoints should be located at the exact same URL, 
 but will have different HTTP-verbs.
 """
-
-# except psycopg2.IntegrityError as e:
-
-# IntegrityError is raised when a database constraint is violated, such as:
-
-# ❌ foreign key violation
-
-# ❌ unique constraint violation
-
-# ❌ NOT NULL violation
-
-# ❌ check constraint violation
-
-# Example causes:
-
-# invalid category_id (FK)
-
-# duplicate email
-
-# missing required column
-
-# negative value blocked by CHECK
 
 
 # Treatment categories
@@ -245,21 +225,6 @@ def create_users(user: UsersCreate):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-# Debugging users 
-
-# @app.post("/users/", status_code=status.HTTP_201_CREATED)
-# def create_users(user: UsersCreate):
-#     try:
-#         created_user = add_users(user)
-#         if created_user is None:
-#             raise HTTPException(status_code=503, detail="Database unavailable")
-#         return created_user
-#     except Exception as e:
-#         print("ERROR creating user:", repr(e))
-#         raise
-    
-
 
 # Read users
 
@@ -268,7 +233,7 @@ def read_users():
     users = get_users()
     if users is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
-    return users
+    return {"customers": users}
 
 # Create new gender type
 
@@ -313,7 +278,7 @@ def read_customers():
     customers = get_customers()
     if customers is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
-    return customers
+    return {"customers": customers}
 
 # Get a user by ID
 
@@ -324,6 +289,7 @@ def read_user(user_id: int):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+# Update user
 
 @app.put("/users/{user_id}")
 def put_user(user_id: int, user: UsersCreate):
@@ -341,80 +307,22 @@ def put_user(user_id: int, user: UsersCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
+# Update customer
+
+@app.put("/customers/{customer_id}")
+def put_customer(customer_id: int, customer: CustomersCreate):
+    try:
+        updated = update_customer(customer_id, customer)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Customer not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Customer already exists for this user")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 3.Customers k
-# 4.Bookings k 
-# 8.users k
-
-#TODO: Endpoints: owners, location_treatments, bookings, users, businesses, customers
-
-# 1.Treatments x
-# 2.Treatment_categories x
-# 3.Customers k
-# 4.Bookings k 
-# 5.Owners m
-# 6.businesses m
-# 7.business locations m
-# 8.users k
-
-# la till: employees m
-
-
-# GET / POST 
-
-
-
-
-
-# IMPLEMENT THE ACTUAL ENDPOINTS! Feel free to remove
-
-
-# @app.get("/treatments")
-# def read_treatments():
-#     treatments = get_treatments()  # Funktionen hanterar connection internt
-#     return {"treatments": treatments}  # Observera plural
-
-## AI-exempel ##
-
-# # I din db.py
-# def get_all_treatments():
-#     conn = get_connection()
-#     if conn is None:
-#         raise DatabaseConnectionError("Kunde inte ansluta till databasen")
-    
-#     try:
-#         with conn:
-#             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-#                 cur.execute("SELECT * FROM treatments")
-#                 return cur.fetchall()  # fetchall() för alla treatments
-#     except Exception as e:
-#         raise DatabaseError(f"Kunde inte hämta behandlingar: {e}")
-
-# @app.get("/treatments")
-# def read_treatments():
-#     conn = get_connection()
-#     if conn is None:
-#         raise HTTPException(status_code=500, detail="Database connection failed")
-    
-#     try:
-#         treatments = get_all_treatments(conn)
-#         return {"treatments": treatments}
-#     finally:
-#         conn.close()  # Viktigt att stänga!
