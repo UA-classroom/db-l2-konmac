@@ -12,7 +12,10 @@ from db import (
     add_businesses,
     get_businesses,
     add_business_locations,
-    get_business_locations
+    get_business_locations,
+    add_users,
+    get_users,
+    add_gender_types
 )
 from fastapi import FastAPI, HTTPException, status
 from schemas import(
@@ -21,7 +24,9 @@ from schemas import(
     OwnersCreate,
     EmployeesCreate,
     BusinessLocationsCreate,
-    BusinessCreate
+    BusinessCreate,
+    UsersCreate,
+    GenderTypesCreate
 )
 
 app = FastAPI()
@@ -217,7 +222,54 @@ def read_business_locations():
         raise HTTPException(status_code=503, detail="Database unavailable")
     return {"business_locations": business_locations}
 
+# Create a new user
 
+@app.post("/users/", status_code=status.HTTP_201_CREATED)
+def create_users(user: UsersCreate):
+    try:
+        created_user = add_users(user)
+        if created_user is None:
+            raise HTTPException(status_code=503, detail="Database unavailable")
+        return {"users": created_user,
+                "message": "User added successfully!"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid gender ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="User already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+# Read users
+
+@app.get("/users/")
+def read_users():
+    users = get_users()
+    if users is None:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    return users
+
+# Create new gender type
+
+@app.post("/gender_types/", status_code=status.HTTP_201_CREATED)
+def create_gender_types(item: GenderTypesCreate):
+    try:
+        created = add_gender_types(item)
+        if created is None:
+            raise HTTPException(status_code=503, detail="Database unavailable")
+        return {"gender_types": created,
+                "message": "Gender type added successfully"}
+    except psycopg2.errors.UniqueViolation: #
+        raise HTTPException(status_code=409, detail="Gender type already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+# 3.Customers k
+# 4.Bookings k 
+# 8.users k
 
 #TODO: Endpoints: owners, location_treatments, bookings, users, businesses, customers
 

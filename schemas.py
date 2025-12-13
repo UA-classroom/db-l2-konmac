@@ -17,13 +17,6 @@ class TreatmentsCreate(BaseModel):
 class TreatmentCategoriesCreate(BaseModel):
     category_name: str
 
-class UsersCreate(BaseModel):
-    email: str
-    password: str
-    first_name: str | None = None
-    last_name: str | None = None
-    phone_number: str | None = None
-    date_of_birth: date | None = None
 
 class CustomersCreate(BaseModel):
     user_id: int
@@ -56,3 +49,15 @@ class EmployeesCreate(BaseModel):
     business_id: int
     location_id: int
     rating: float | None = None
+
+class UsersCreate(BaseModel):
+    email: str
+    password: str
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    date_of_birth: date | None = None
+    gender_id: int
+
+class GenderTypesCreate(BaseModel):
+    gender_types: str

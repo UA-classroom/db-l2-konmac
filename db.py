@@ -24,7 +24,9 @@ from schemas import (
     OwnersCreate,
     EmployeesCreate,
     BusinessCreate,
-    BusinessLocationsCreate
+    BusinessLocationsCreate,
+    UsersCreate,
+    GenderTypesCreate
 )
 
 
@@ -246,9 +248,71 @@ def get_business_locations():
     finally:
         conn.close()
 
+# Create a new user
 
+def add_users(item: UsersCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender_id, created_at; 
+                    """, # I dont return it all to hide the password but I accept it in insert
+                    (item.email, item.password, item.first_name, item.last_name, item.phone_number, item.date_of_birth, item.gender_id),
+                )
+                inserted = cur.fetchone()
+            return inserted
+    finally:
+        conn.close()
 
+def get_users():
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT
+                        user_id,
+                        email,
+                        first_name,
+                        last_name,
+                        phone_number,
+                        date_of_birth,
+                        gender_id,
+                        created_at
+                    FROM users;
+                    """) # Skipping password to protect it
+                users = cur.fetchall()
+                return users
+    finally:
+        conn.close()
 
+def add_gender_types(item: GenderTypesCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    INSERT INTO gender_types(gender_types)
+                    VALUES (%s)
+                    RETURNING *;
+                    """,
+                    (item.gender_types,),
+                )
+                inserted = cur.fetchone()
+            return inserted
+    finally:
+        conn.close()
 
 ### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
 # def get_treatment(con, item_id):
