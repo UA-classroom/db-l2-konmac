@@ -15,7 +15,11 @@ from db import (
     get_business_locations,
     add_users,
     get_users,
-    add_gender_types
+    get_user_by_id,
+    update_user,
+    add_gender_types,
+    add_customers,
+    get_customers
 )
 from fastapi import FastAPI, HTTPException, status
 from schemas import(
@@ -26,7 +30,8 @@ from schemas import(
     BusinessLocationsCreate,
     BusinessCreate,
     UsersCreate,
-    GenderTypesCreate
+    GenderTypesCreate,
+    CustomersCreate
 )
 
 app = FastAPI()
@@ -241,6 +246,21 @@ def create_users(user: UsersCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
     
+# Debugging users 
+
+# @app.post("/users/", status_code=status.HTTP_201_CREATED)
+# def create_users(user: UsersCreate):
+#     try:
+#         created_user = add_users(user)
+#         if created_user is None:
+#             raise HTTPException(status_code=503, detail="Database unavailable")
+#         return created_user
+#     except Exception as e:
+#         print("ERROR creating user:", repr(e))
+#         raise
+    
+
+
 # Read users
 
 @app.get("/users/")
@@ -266,6 +286,78 @@ def create_gender_types(item: GenderTypesCreate):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
+
+# Create a new customer
+
+@app.post("/customers/", status_code=status.HTTP_201_CREATED)
+def create_customers(customer: CustomersCreate):
+    try:
+        created_customer = add_customers(customer)
+        if created_customer is None:
+            raise HTTPException(status_code=503, detail="Database unavailable")
+        return {"customer": created_customer,
+                "message": "Customer added successfully!"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Customer already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+# Get a customer
+
+@app.get("/customers/")
+def read_customers():
+    customers = get_customers()
+    if customers is None:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    return customers
+
+# Get a user by ID
+
+@app.get("/users/{user_id}")
+def read_user(user_id: int):
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@app.put("/users/{user_id}")
+def put_user(user_id: int, user: UsersCreate):
+    try:
+        updated = update_user(user_id, user)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid gender ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Email already exists")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 3.Customers k
 # 4.Bookings k 

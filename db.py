@@ -26,7 +26,8 @@ from schemas import (
     BusinessCreate,
     BusinessLocationsCreate,
     UsersCreate,
-    GenderTypesCreate
+    GenderTypesCreate,
+    CustomersCreate
 )
 
 
@@ -259,11 +260,11 @@ def add_users(item: UsersCreate):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
-                    INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender_id)
+                    INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender_id, created_at; 
+                    RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender, created_at; 
                     """, # I dont return it all to hide the password but I accept it in insert
-                    (item.email, item.password, item.first_name, item.last_name, item.phone_number, item.date_of_birth, item.gender_id),
+                    (item.email, item.password, item.first_name, item.last_name, item.phone_number, item.date_of_birth, item.gender),
                 )
                 inserted = cur.fetchone()
             return inserted
@@ -311,6 +312,106 @@ def add_gender_types(item: GenderTypesCreate):
                 )
                 inserted = cur.fetchone()
             return inserted
+    finally:
+        conn.close()
+
+def add_customers(customer: CustomersCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                INSERT INTO customers (user_id, balance)
+                VALUES (%s, %s)
+                RETURNING *;
+                """,
+                (customer.user_id, customer.balance)
+                )
+                inserted = cur.fetchone()
+            return inserted
+    finally:
+        conn.close()
+
+def get_customers():
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM customers;")
+                customers = cur.fetchall()
+            return customers
+    finally:
+        conn.close()
+
+def get_user_by_id(user_id: int):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT
+                        user_id,
+                        email,
+                        first_name,
+                        last_name,
+                        phone_number,
+                        date_of_birth,
+                        gender,
+                        created_at
+                    FROM users
+                    WHERE user_id = %s;
+                    """,
+                    (user_id,),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def update_user(user_id: int, item: UsersCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE users
+                    SET
+                        email = %s,
+                        password = %s,
+                        first_name = %s,
+                        last_name = %s,
+                        phone_number = %s,
+                        date_of_birth = %s,
+                        gender = %s
+                    WHERE user_id = %s
+                    RETURNING
+                        user_id, email, first_name, last_name,
+                        phone_number, date_of_birth, gender, created_at;
+                    """,
+                    (
+                        item.email, 
+                        item.password, 
+                        item.first_name, 
+                        item.last_name, 
+                        item.phone_number, 
+                        item.date_of_birth, 
+                        item.gender, 
+                        user_id,
+                    ),
+                )
+                return cur.fetchone()
     finally:
         conn.close()
 

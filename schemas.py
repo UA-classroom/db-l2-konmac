@@ -57,7 +57,8 @@ class UsersCreate(BaseModel):
     last_name: str | None = None
     phone_number: str | None = None
     date_of_birth: date | None = None
-    gender_id: int
+    gender: int
 
 class GenderTypesCreate(BaseModel):
     gender_types: str
+
