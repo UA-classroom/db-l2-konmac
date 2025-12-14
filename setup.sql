@@ -63,7 +63,6 @@ CREATE TABLE businesses(
     email VARCHAR(100) UNIQUE,
     phone_number VARCHAR(30),
     about_text TEXT,
-    number_of_employees SMALLINT
 );
 
 CREATE TABLE treatment_categories (

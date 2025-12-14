@@ -440,8 +440,7 @@ def put_business_locations(location_id: int,business_locations: BusinessLocation
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-#TODO: Lägg till delete-endponts
+
 
 @app.delete("/customers/{customer_id}")
 def remove_customer(customer_id: int):

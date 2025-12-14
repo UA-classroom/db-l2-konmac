@@ -27,8 +27,6 @@ class BusinessCreate(BaseModel):
     email: str
     phone_number: str | None = None
     about_text: str | None  = None
-    # number_of_employees: int | None = None
-    #TODO: Kanske ta bort number of employees då detta utvinnns från employees på samma business ändå.
 
 class BusinessLocationsCreate(BaseModel):
     phone_number: str
