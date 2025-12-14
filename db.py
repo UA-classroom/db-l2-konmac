@@ -19,17 +19,17 @@ start with a connection parameter.
 from db_setup import get_connection
 from psycopg2.extras import RealDictCursor
 from schemas import (
-    TreatmentCategoriesCreate,
-    TreatmentsCreate,
-    OwnersCreate,
-    EmployeesCreate,
+    BookingsCreate,
+    BookingStatusesCreate,
     BusinessCreate,
     BusinessLocationsCreate,
-    UsersCreate,
-    GenderTypesCreate,
     CustomersCreate,
-    BookingStatusesCreate,
-    BookingsCreate
+    EmployeesCreate,
+    GenderTypesCreate,
+    OwnersCreate,
+    TreatmentCategoriesCreate,
+    TreatmentsCreate,
+    UsersCreate,
 )
 
 """
@@ -54,6 +54,8 @@ def add_treatments(item: TreatmentsCreate):
                 )
                 inserted =  cur.fetchone()
             return inserted
+    # except Exception as e:
+    #     print(e)
     finally:
         conn.close()
 
@@ -82,12 +84,14 @@ def add_treatment_categories(item: TreatmentCategoriesCreate):
 def get_treatments():
     conn = get_connection()
     if conn is None:
-        return None
+        raise ConnectionError
     try:
         with conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT * FROM treatments;")
                 treatments = cur.fetchall()
+                if treatments is None:
+                    raise FileNotFoundError
             return treatments
     finally:
         conn.close()
@@ -234,11 +238,11 @@ def add_businesses(business: BusinessCreate):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
-                INSERT INTO businesses (business_name, email, phone_number, about_text, number_of_employees)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO businesses (business_name, email, phone_number, about_text)
+                VALUES (%s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (business.business_name, business.email, business.phone_number, business.about_text, business.number_of_employees)
+                (business.business_name, business.email, business.phone_number, business.about_text)
                 )
                 inserted = cur.fetchone()
             return inserted

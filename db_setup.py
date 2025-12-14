@@ -14,6 +14,7 @@ if not DATABASE_NAME or not PASSWORD:
     raise ValueError("DATABASE_NAME and PASSWORD must be set in .env file")
 
 def get_connection():
+    
     """
     Function establishes a connection to the database
     Uses database_name and password from env variables

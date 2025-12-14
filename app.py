@@ -1,54 +1,52 @@
 
 import psycopg2
 from db import (
-    add_treatment_categories,
-    add_treatments,
-    get_treatment_categories,
-    get_treatments,
-    delete_treatment,
-    add_owners,
-    get_owners,
-    add_employees,
-    get_employees,
-    delete_employee,
-    add_businesses,
-    get_businesses,
-    add_business_locations,
-    get_business_locations,
-    add_users,
-    get_users,
-    delete_user,
-    get_user_by_id,
-    update_user,
-    add_gender_types,
-    add_customers,
-    get_customers,
-    update_customer,
-    delete_customer,
     add_booking_statuses,
     add_bookings,
-    get_bookings,
+    add_business_locations,
+    add_businesses,
+    add_customers,
+    add_employees,
+    add_gender_types,
+    add_owners,
+    add_treatment_categories,
+    add_treatments,
+    add_users,
     delete_booking,
+    delete_customer,
+    delete_employee,
+    delete_treatment,
+    delete_user,
+    get_bookings,
+    get_business_locations,
+    get_businesses,
+    get_customers,
+    get_employees,
+    get_owners,
+    get_treatment_categories,
+    get_treatments,
+    get_user_by_id,
+    get_users,
     patch_booking_status,
     update_business,
-    update_business_location
-
+    update_business_location,
+    update_customer,
+    update_user,
 )
-
 from fastapi import FastAPI, HTTPException, status
-from schemas import(
+from schemas import (
+    BookingsCreate,
+    BookingStatusesCreate,
+    BookingStatusPatch,
+    BusinessCreate,
+    BusinessLocationsCreate,
+    CustomersCreate,
+    EmployeesCreate,
+    GenderTypesCreate,
+    OwnersCreate,
     TreatmentCategoriesCreate,
     TreatmentsCreate,
-    OwnersCreate,
-    EmployeesCreate,
-    BusinessLocationsCreate,
-    BusinessCreate,
     UsersCreate,
-    GenderTypesCreate,
-    CustomersCreate,
-    BookingStatusesCreate,
-    BookingsCreate,
-    BookingStatusPatch
 )
 
 app = FastAPI()
@@ -67,6 +65,8 @@ but will have different HTTP-verbs.
 """
 
 
+
+
 # Treatment categories
 
 @app.post("/treatment_categories/", status_code=status.HTTP_201_CREATED)
@@ -75,7 +75,6 @@ def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
         treatment_categories = add_treatment_categories(treatment_category)
         if treatment_categories is None:
             raise HTTPException(status_code=503, detail="Database unavailable")
-        #TODO: Vid närmare eftertanke känns denna felkoden fel. Databasen är avalieble, men inget värde har returnerats. Borde kanske vara 404 Not found?
         return {"treatment_category": treatment_categories,
                 "message": "Treatment category created successfully"}
     except psycopg2.errors.UniqueViolation:
@@ -89,7 +88,7 @@ def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
 def read_treatment_categories():
     treatment_categories = get_treatment_categories()
     if treatment_categories is None:
-        raise HTTPException(status_code=503, detail="Database unavailable")
+        raise HTTPException(status_code=404, detail="No treatment categories found")
     return {"treatment_categories": treatment_categories}
 
 #Treatments
@@ -113,10 +112,16 @@ def create_treatment(treatment: TreatmentsCreate):
 
 @app.get("/treatments/")
 def read_treatments():
-    treatments = get_treatments()
-    if treatments is None:
+    #TODO: Kolla upp hanteringen av error här. Detta är alternativ två.
+    try:
+        treatments = get_treatments()
+        # if treatments is None:
+            # raise HTTPException(status_code=404, detail="No treatments found")
+        return {"treatments": treatments}
+    except ConnectionError:
         raise HTTPException(status_code=503, detail="Database unavailable")
-    return {"treatments": treatments}
+    except FileNotFoundError:
+        HTTPException(status_code=404, detail="No treatments found")
 
 # Owners
 
@@ -307,7 +312,7 @@ def create_customers(customer: CustomersCreate):
 def read_customers():
     customers = get_customers()
     if customers is None:
-        raise HTTPException(status_code=503, detail="Database unavailable")
+        raise HTTPException(status_code=404, detail="User no found")
     return {"customers": customers}
 
 # Get a user by ID
@@ -316,7 +321,7 @@ def read_customers():
 def read_user(user_id: int):
     user = get_user_by_id(user_id)
     if user is None:
-        raise HTTPException(status_code=503, detail="Database unavailable")
+        raise HTTPException(status_code=404, detail="No user found with this ID")
     return {"users": user}
 
 # Update user
@@ -332,7 +337,6 @@ def put_user(user_id: int, user: UsersCreate):
         raise HTTPException(status_code=400, detail="Invalid gender ID")
     except psycopg2.errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Email already exists")
-    #TODO: Känns ologiskt även här då det är en update
     except psycopg2.OperationalError:
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
@@ -351,7 +355,6 @@ def put_customer(customer_id: int, customer: CustomersCreate):
         raise HTTPException(status_code=400, detail="Invalid user ID")
     except psycopg2.errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Customer already exists for this user")
-    #TODO: "Already exists känns fel på en update, kolla detta"
     except psycopg2.errors.NumericValueOutOfRange:
         raise HTTPException(status_code=400, detail="Balance value is too large")
     except psycopg2.OperationalError:
@@ -404,7 +407,7 @@ def create_booking(booking: BookingsCreate):
 def read_booking(booking_id: int):
     bookings = get_bookings(booking_id)
     if bookings is None:
-        raise HTTPException(status_code=503, detail="Database unavailable")
+        raise HTTPException(status_code=404, detail="No booking found for this ID")
     return {"bookings": bookings}
 
 #Update Business bu id
@@ -515,3 +518,4 @@ def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
         raise HTTPException(status_code=400, detail="Invalid booking status")
     except psycopg2.OperationalError:
         raise HTTPException(status_code=503, detail="Database unavailable")
+

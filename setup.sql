@@ -62,7 +62,7 @@ CREATE TABLE businesses(
     business_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE,
     phone_number VARCHAR(30),
-    about_text TEXT,
+    about_text TEXT
 );
 
 CREATE TABLE treatment_categories (
