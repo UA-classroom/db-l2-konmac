@@ -51,7 +51,7 @@ CREATE TABLE users (
     last_name VARCHAR(255),
     phone_number VARCHAR(20),
     date_of_birth DATE,
-    gender INT NOT NULL REFERENCES gender_types(gender_id),
+    gender_id INT NOT NULL REFERENCES gender_types(gender_id),
     profile_photo VARCHAR(200),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

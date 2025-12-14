@@ -32,6 +32,9 @@ from schemas import (
     BookingsCreate
 )
 
+"""
+TREATMENTS
+"""
 
 ### 1. Create a new treatment and return the created row
 def add_treatments(item: TreatmentsCreate):
@@ -89,6 +92,28 @@ def get_treatments():
     finally:
         conn.close()
 
+def delete_treatment(treatment_id: int):
+    conn = get_connection()
+    if conn is None:
+        return None
+
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                DELETE FROM treatments
+                WHERE treatment_id = %s
+                RETURNING *;
+                """,
+                (treatment_id,),
+            )
+            deleted = cur.fetchone()
+            return deleted
+
+"""
+TREATMENT CATEGORIES
+"""
+
 ### 4. Get all treatment categories
 def get_treatment_categories():
     conn = get_connection()
@@ -103,7 +128,9 @@ def get_treatment_categories():
     finally:
         conn.close()
 
-# Owners
+"""
+OWNERS
+"""
 
 def add_owners(owner: OwnersCreate):
     conn = get_connection()
@@ -138,7 +165,9 @@ def get_owners():
     finally:
         conn.close()
 
-# Employees
+"""
+EMPLOYEES
+"""
 
 def add_employees(employee: EmployeesCreate):
     conn = get_connection()
@@ -173,8 +202,28 @@ def get_employees():
     finally:
         conn.close()
 
+def delete_employee(employee_id: int):
+    conn = get_connection()
+    if conn is None:
+        return None
 
-# Businesses
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                DELETE FROM employees
+                WHERE employee_id = %s
+                RETURNING *;
+                """,
+                (employee_id,),
+            )
+            deleted = cur.fetchone()
+            return deleted
+
+
+"""
+BUSINESSES
+"""
 
 def add_businesses(business: BusinessCreate):
     conn = get_connection()
@@ -209,7 +258,34 @@ def get_businesses():
     finally:
         conn.close()
 
-# Business locations
+def update_business(business_id: int, businesses: BusinessCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE businesses
+                    SET
+                        business_name = %s,
+                        email = %s,
+                        phone_number = %s,
+                        about_text = %s
+                    WHERE business_id = %s
+                    RETURNING *;
+                    """,
+                    (businesses.business_name, businesses.email,
+                    businesses.phone_number,businesses.about_text, business_id),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+"""
+BUSINESS LOCATIONS
+"""
 
 def add_business_locations(business_location: BusinessLocationsCreate):
     conn = get_connection()
@@ -252,7 +328,43 @@ def get_business_locations():
     finally:
         conn.close()
 
-# Create a new user
+# Update Business location
+def update_business_location(location_id: int, business_locations: BusinessLocationsCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE business_locations
+                    SET
+                        phone_number = %s,
+                        business_id = %s,
+                        email = %s,
+                        street_address = %s,
+                        city = %s,
+                        postal_code = %s,
+                        country = %s,
+                        longitude = %s,
+                        latitude = %s
+                    WHERE location_id = %s
+                    RETURNING *;
+                    """,
+                    (business_locations.phone_number, business_locations.business_id,
+                    business_locations.email, business_locations.street_address, business_locations.city,
+                    business_locations.postal_code, business_locations.country, business_locations.longitude,
+                    business_locations.latitude, location_id),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+
+"""
+USERS
+"""
 
 def add_users(item: UsersCreate):
     conn = get_connection()
@@ -263,11 +375,11 @@ def add_users(item: UsersCreate):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
-                    INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender)
+                    INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender_id)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender, created_at; 
+                    RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender_id, created_at; 
                     """, # I dont return it all to hide the password but I accept it in insert
-                    (item.email, item.password, item.first_name, item.last_name, item.phone_number, item.date_of_birth, item.gender),
+                    (item.email, item.password, item.first_name, item.last_name, item.phone_number, item.date_of_birth, item.gender_id),
                 )
                 inserted = cur.fetchone()
             return inserted
@@ -289,7 +401,7 @@ def get_users():
                         last_name,
                         phone_number,
                         date_of_birth,
-                        gender,
+                        gender_id,
                         created_at
                     FROM users;
                     """) # Skipping password to protect it
@@ -297,6 +409,95 @@ def get_users():
             return users
     finally:
         conn.close()
+
+def delete_user(user_id: int):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.curson(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    DELETE FROM users
+                    WHERE user_id = %s
+                    RETURNING user_id, email, first_name, last_name, created_at;
+                    """,
+                    (user_id,),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+def get_user_by_id(user_id: int):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT
+                        user_id,
+                        email,
+                        first_name,
+                        last_name,
+                        phone_number,
+                        date_of_birth,
+                        gender_id,
+                        created_at
+                    FROM users
+                    WHERE user_id = %s;
+                    """,
+                    (user_id,),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+def update_user(user_id: int, item: UsersCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE users
+                    SET
+                        email = %s,
+                        password = %s,
+                        first_name = %s,
+                        last_name = %s,
+                        phone_number = %s,
+                        date_of_birth = %s,
+                        gender_id = %s
+                    WHERE user_id = %s
+                    RETURNING
+                        user_id, email, first_name, last_name,
+                        phone_number, date_of_birth, gender_id, created_at;
+                    """,
+                    (
+                        item.email, 
+                        item.password, 
+                        item.first_name, 
+                        item.last_name, 
+                        item.phone_number, 
+                        item.date_of_birth, 
+                        item.gender_id, 
+                        user_id,
+                    ),
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
+
+
+"""
+GENDER TYPES
+"""
 
 def add_gender_types(item: GenderTypesCreate):
     conn = get_connection()
@@ -317,6 +518,10 @@ def add_gender_types(item: GenderTypesCreate):
             return inserted
     finally:
         conn.close()
+
+"""
+CUSTOMERS
+"""
 
 def add_customers(customer: CustomersCreate):
     conn = get_connection()
@@ -351,7 +556,7 @@ def get_customers():
     finally:
         conn.close()
 
-def get_user_by_id(user_id: int):
+def delete_customer(customer_id: int):
     conn = get_connection()
     if conn is None:
         return None
@@ -360,62 +565,16 @@ def get_user_by_id(user_id: int):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
-                    SELECT
-                        user_id,
-                        email,
-                        first_name,
-                        last_name,
-                        phone_number,
-                        date_of_birth,
-                        gender,
-                        created_at
-                    FROM users
-                    WHERE user_id = %s;
+                    DELETE FROM customers
+                    WHERE customer_id = %s
+                    RETURNING customer_id, user_id, balance;
                     """,
-                    (user_id,),
+                    (customer_id,),
                 )
                 return cur.fetchone()
     finally:
         conn.close()
 
-
-def update_user(user_id: int, item: UsersCreate):
-    conn = get_connection()
-    if conn is None:
-        return None
-    try:
-        with conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    """
-                    UPDATE users
-                    SET
-                        email = %s,
-                        password = %s,
-                        first_name = %s,
-                        last_name = %s,
-                        phone_number = %s,
-                        date_of_birth = %s,
-                        gender = %s
-                    WHERE user_id = %s
-                    RETURNING
-                        user_id, email, first_name, last_name,
-                        phone_number, date_of_birth, gender, created_at;
-                    """,
-                    (
-                        item.email, 
-                        item.password, 
-                        item.first_name, 
-                        item.last_name, 
-                        item.phone_number, 
-                        item.date_of_birth, 
-                        item.gender, 
-                        user_id,
-                    ),
-                )
-                return cur.fetchone()
-    finally:
-        conn.close()
 
 def update_customer(customer_id :int, item: CustomersCreate):
     conn = get_connection()
@@ -444,7 +603,9 @@ def update_customer(customer_id :int, item: CustomersCreate):
     finally:
         conn.close()
 
-# Booking statuses
+"""
+BOOKING STATUSES
+"""
 
 def add_booking_statuses(booking_statuses: BookingStatusesCreate):
     conn = get_connection()
@@ -466,7 +627,9 @@ def add_booking_statuses(booking_statuses: BookingStatusesCreate):
     finally:
         conn.close()
 
-# Bookings
+"""
+BOOKINGS
+"""
 
 def add_bookings(bookings: BookingsCreate):
     conn = get_connection()
@@ -507,63 +670,39 @@ def get_bookings(booking_id: int):
     finally:
         conn.close()
 
-# Update Business
 
-def update_business(business_id: int, businesses: BusinessCreate):
+def delete_booking(booking_id: int):
     conn = get_connection()
     if conn is None:
         return None
-    try:
-        with conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    """
-                    UPDATE businesses
-                    SET
-                        business_name = %s,
-                        email = %s,
-                        phone_number = %s,
-                        about_text = %s
-                    WHERE business_id = %s
-                    RETURNING *;
-                    """,
-                    (businesses.business_name, businesses.email,
-                    businesses.phone_number,businesses.about_text, business_id),
-                )
-                return cur.fetchone()
-    finally:
-        conn.close()
 
-# Update Business location
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                DELETE FROM bookings
+                WHERE booking_id = %s
+                RETURNING *;
+                """,
+                (booking_id,),
+            )
+            deleted = cur.fetchone()
+            return deleted
 
-def update_business_location(location_id: int, business_locations: BusinessLocationsCreate):
+def patch_booking_status(booking_id: int, booking_status: int):
     conn = get_connection()
     if conn is None:
         return None
-    try:
-        with conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    """
-                    UPDATE business_locations
-                    SET
-                        phone_number = %s,
-                        business_id = %s,
-                        email = %s,
-                        street_address = %s,
-                        city = %s,
-                        postal_code = %s,
-                        country = %s,
-                        longitude = %s,
-                        latitude = %s
-                    WHERE location_id = %s
-                    RETURNING *;
-                    """,
-                    (business_locations.phone_number, business_locations.business_id,
-                    business_locations.email, business_locations.street_address, business_locations.city,
-                    business_locations.postal_code, business_locations.country, business_locations.longitude,
-                    business_locations.latitude, location_id),
-                )
-                return cur.fetchone()
-    finally:
-        conn.close()
+
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                UPDATE bookings
+                SET booking_status = %s
+                WHERE booking_id = %s
+                RETURNING *;
+                """,
+                (booking_status, booking_id),
+            )
+            return cur.fetchone()

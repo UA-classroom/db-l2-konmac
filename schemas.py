@@ -58,7 +58,7 @@ class UsersCreate(BaseModel):
     last_name: str | None = None
     phone_number: str | None = None
     date_of_birth: date | None = None
-    gender: int
+    gender_id: int
 
 class GenderTypesCreate(BaseModel):
     gender_types: str
@@ -78,3 +78,6 @@ class BookingsCreate(BaseModel):
     notes: str | None = None
     booking_status: int
     payment_confirmed: bool
+
+class BookingStatusPatch(BaseModel):
+    booking_status: int

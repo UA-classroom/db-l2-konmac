@@ -5,25 +5,31 @@ from db import (
     add_treatments,
     get_treatment_categories,
     get_treatments,
+    delete_treatment,
     add_owners,
     get_owners,
     add_employees,
     get_employees,
+    delete_employee,
     add_businesses,
     get_businesses,
     add_business_locations,
     get_business_locations,
     add_users,
     get_users,
+    delete_user,
     get_user_by_id,
     update_user,
     add_gender_types,
     add_customers,
     get_customers,
     update_customer,
+    delete_customer,
     add_booking_statuses,
     add_bookings,
     get_bookings,
+    delete_booking,
+    patch_booking_status,
     update_business,
     update_business_location
 
@@ -41,7 +47,8 @@ from schemas import(
     GenderTypesCreate,
     CustomersCreate,
     BookingStatusesCreate,
-    BookingsCreate
+    BookingsCreate,
+    BookingStatusPatch
 )
 
 app = FastAPI()
@@ -244,6 +251,20 @@ def read_users():
         raise HTTPException(status_code=503, detail="Database unavailable")
     return {"customers": users}
 
+@app.delete("/users/{user_id}")
+def remove_user(user_id: int):
+    try:
+        deleted = delete_user(user_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"deleted_user": deleted, "message": "User deleted successfully"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete user because it is referenced by another table")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
 # Create new gender type
 
 @app.post("/gender_types/", status_code=status.HTTP_201_CREATED)
@@ -331,10 +352,10 @@ def put_customer(customer_id: int, customer: CustomersCreate):
     except psycopg2.errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Customer already exists for this user")
     #TODO: "Already exists känns fel på en update, kolla detta"
+    except psycopg2.errors.NumericValueOutOfRange:
+        raise HTTPException(status_code=400, detail="Balance value is too large")
     except psycopg2.OperationalError:
         raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
 
 # Add Booking Status
 #TODO: Kanske att denna ska hardcodeas? Ska man behöva lägga till statusar? Sqamma med blad annat genders, Kika detta
@@ -421,3 +442,77 @@ def put_business_locations(location_id: int,business_locations: BusinessLocation
         raise HTTPException(status_code=500, detail="Database error occurred")
     
 #TODO: Lägg till delete-endponts
+
+@app.delete("/customers/{customer_id}")
+def remove_customer(customer_id: int):
+    try:
+        deleted = delete_customer(customer_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="Customer not found")
+        return {
+            "deleted_customer": deleted,
+            "message": "Customer deleted successfully"
+        }
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete customer because it is referenced by another table"
+        )
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+@app.delete("/treatments/{treatment_id}")
+def delete_treatment_endpoint(treatment_id: int):
+    try:
+        deleted = delete_treatment(treatment_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="Treatment not found")
+        return deleted
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete treatment because it is referenced by other records")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+@app.delete("/bookings/{booking_id}")
+def delete_booking_endpoint(booking_id: int):
+    try:
+        deleted = delete_booking(booking_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        return deleted
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete booking because it is referenced")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+@app.delete("/employees/{employee_id}")
+def delete_employee_endpoint(employee_id: int):
+    try:
+        deleted = delete_employee(employee_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        return deleted
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete employee because it is referenced")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+    
+@app.patch("/bookings/{booking_id}/status")
+def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
+    try:
+        updated = patch_booking_status(booking_id, status.booking_status)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid booking status")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
