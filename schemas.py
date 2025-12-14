@@ -27,7 +27,8 @@ class BusinessCreate(BaseModel):
     email: str
     phone_number: str | None = None
     about_text: str | None  = None
-    number_of_employees: int | None = None
+    # number_of_employees: int | None = None
+    #TODO: Kanske ta bort number of employees då detta utvinnns från employees på samma business ändå.
 
 class BusinessLocationsCreate(BaseModel):
     phone_number: str
@@ -62,3 +63,18 @@ class UsersCreate(BaseModel):
 class GenderTypesCreate(BaseModel):
     gender_types: str
 
+class BookingStatusesCreate(BaseModel):
+    status_name: str
+
+class BookingsCreate(BaseModel):
+    location_id: int
+    treatment_id: int
+    customer_id: int
+    employee_id: int
+    business_id: int
+    booked_date: date
+    time_start: datetime
+    time_stop: datetime
+    notes: str | None = None
+    booking_status: int
+    payment_confirmed: bool
