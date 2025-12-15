@@ -69,7 +69,7 @@ but will have different HTTP-verbs.
 
 # Treatment categories
 
-@app.post("/treatment_categories/", status_code=status.HTTP_201_CREATED)
+@app.post("/treatment_categories/", status_code=status.HTTP_201_CREATED, tags=["Treatment categories"])
 def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
     try:
         treatment_categories = add_treatment_categories(treatment_category)
@@ -84,16 +84,17 @@ def create_treatment_categories(treatment_category: TreatmentCategoriesCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
     
-@app.get("/treatment_categories/")
+@app.get("/treatment_categories/", tags=["Treatment categories"])
 def read_treatment_categories():
     treatment_categories = get_treatment_categories()
     if treatment_categories is None:
         raise HTTPException(status_code=404, detail="No treatment categories found")
     return {"treatment_categories": treatment_categories}
 
+
 #Treatments
 
-@app.post("/treatments/", status_code=status.HTTP_201_CREATED)
+@app.post("/treatments/", status_code=status.HTTP_201_CREATED, tags=["Treatments"])
 def create_treatment(treatment: TreatmentsCreate):
     try:
         treatments = add_treatments(treatment)
@@ -110,7 +111,7 @@ def create_treatment(treatment: TreatmentsCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@app.get("/treatments/")
+@app.get("/treatments/", tags=["Treatments"])
 def read_treatments():
     #TODO: Kolla upp hanteringen av error här. Detta är alternativ två.
     try:
@@ -123,9 +124,10 @@ def read_treatments():
     except FileNotFoundError:
         HTTPException(status_code=404, detail="No treatments found")
 
+
 # Owners
 
-@app.post("/owners/", status_code=status.HTTP_201_CREATED)
+@app.post("/owners/", status_code=status.HTTP_201_CREATED, tags=["Owners"])
 def create_owners(owner: OwnersCreate):
     try:
         owners = add_owners(owner)
@@ -142,7 +144,7 @@ def create_owners(owner: OwnersCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@app.get("/owners/")
+@app.get("/owners/", tags=["Owners"])
 def read_owners():
     owners = get_owners()
     if owners is None:
@@ -152,7 +154,7 @@ def read_owners():
 
 # Employees
 
-@app.post("/employees/", status_code=status.HTTP_201_CREATED)
+@app.post("/employees/", status_code=status.HTTP_201_CREATED, tags=["Employees"])
 def create_employees(employee: EmployeesCreate):
     try:
         employees = add_employees(employee)
@@ -169,7 +171,7 @@ def create_employees(employee: EmployeesCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@app.get("/employees/")
+@app.get("/employees/", tags=["Employees"])
 def read_employees():
     employees = get_employees()
     if employees is None:
@@ -179,7 +181,7 @@ def read_employees():
 
 # Businesses
 
-@app.post("/businesses/", status_code=status.HTTP_201_CREATED)
+@app.post("/businesses/", status_code=status.HTTP_201_CREATED, tags=["Businesses"])
 def create_business(business: BusinessCreate):
     try:
         businesses = add_businesses(business)
@@ -194,7 +196,7 @@ def create_business(business: BusinessCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@app.get("/businesses/")
+@app.get("/businesses/", tags=["Businesses"])
 def read_business():
     businesses = get_businesses()
     if businesses is None:
@@ -204,7 +206,7 @@ def read_business():
 
 # Business locations
 
-@app.post("/business_locations/", status_code=status.HTTP_201_CREATED)
+@app.post("/business_locations/", status_code=status.HTTP_201_CREATED, tags=["Business locations"])
 def create_business_location(business_location: BusinessLocationsCreate):
     try:
         business_locations = add_business_locations(business_location)
@@ -221,16 +223,17 @@ def create_business_location(business_location: BusinessLocationsCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@app.get("/business_locations/")
+@app.get("/business_locations/", tags=["Business locations"])
 def read_business_locations():
     business_locations = get_business_locations()
     if business_locations is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
     return {"business_locations": business_locations}
 
-# Create a new user
 
-@app.post("/users/", status_code=status.HTTP_201_CREATED)
+# Users
+
+@app.post("/users/", status_code=status.HTTP_201_CREATED, tags=["Users"])
 def create_users(user: UsersCreate):
     try:
         created_user = add_users(user)
@@ -247,16 +250,37 @@ def create_users(user: UsersCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-# Read users
-
-@app.get("/users/")
+@app.get("/users/", tags=["Users"])
 def read_users():
     users = get_users()
     if users is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
     return {"customers": users}
 
-@app.delete("/users/{user_id}")
+@app.get("/users/{user_id}", tags=["Users"])
+def read_user(user_id: int):
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="No user found with this ID")
+    return {"users": user}
+
+@app.put("/users/{user_id}", tags=["Users"])
+def put_user(user_id: int, user: UsersCreate):
+    try:
+        updated = update_user(user_id, user)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid gender ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Email already exists")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.delete("/users/{user_id}", tags=["Users"])
 def remove_user(user_id: int):
     try:
         deleted = delete_user(user_id)
@@ -270,9 +294,10 @@ def remove_user(user_id: int):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-# Create new gender type
 
-@app.post("/gender_types/", status_code=status.HTTP_201_CREATED)
+# Gender types
+
+@app.post("/gender_types/", status_code=status.HTTP_201_CREATED, tags=["Gender types"])
 def create_gender_types(item: GenderTypesCreate):
     try:
         created = add_gender_types(item)
@@ -287,9 +312,10 @@ def create_gender_types(item: GenderTypesCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-# Create a new customer
 
-@app.post("/customers/", status_code=status.HTTP_201_CREATED)
+# Customers
+
+@app.post("/customers/", status_code=status.HTTP_201_CREATED, tags=["Customers"])
 def create_customers(customer: CustomersCreate):
     try:
         created_customer = add_customers(customer)
@@ -306,45 +332,14 @@ def create_customers(customer: CustomersCreate):
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
     
-# Get a customer
-
-@app.get("/customers/")
+@app.get("/customers/", tags=["Customers"])
 def read_customers():
     customers = get_customers()
     if customers is None:
         raise HTTPException(status_code=404, detail="User no found")
     return {"customers": customers}
 
-# Get a user by ID
-
-@app.get("/users/{user_id}")
-def read_user(user_id: int):
-    user = get_user_by_id(user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="No user found with this ID")
-    return {"users": user}
-
-# Update user
-
-@app.put("/users/{user_id}")
-def put_user(user_id: int, user: UsersCreate):
-    try:
-        updated = update_user(user_id, user)
-        if updated is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        return updated
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid gender ID")
-    except psycopg2.errors.UniqueViolation:
-        raise HTTPException(status_code=409, detail="Email already exists")
-    except psycopg2.OperationalError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
-
-# Update customer
-
-@app.put("/customers/{customer_id}")
+@app.put("/customers/{customer_id}", tags=["Customers"])
 def put_customer(customer_id: int, customer: CustomersCreate):
     try:
         updated = update_customer(customer_id, customer)
@@ -360,92 +355,7 @@ def put_customer(customer_id: int, customer: CustomersCreate):
     except psycopg2.OperationalError:
         raise HTTPException(status_code=503, detail="Database unavailable")
 
-# Add Booking Status
-#TODO: Kanske att denna ska hardcodeas? Ska man behöva lägga till statusar? Sqamma med blad annat genders, Kika detta
-
-@app.post("/booking_statuses/", status_code=status.HTTP_201_CREATED)
-def create_booking_status(booking_status: BookingStatusesCreate,
-):
-    try:
-        booking_statuses = add_booking_statuses(booking_status)
-        if booking_statuses is None:
-            raise HTTPException(status_code=503, detail="Database unavailable")
-        return {"booking_statuses": booking_statuses,
-                "message": "Booking status added successfully!"}
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid ID")
-    except psycopg2.errors.UniqueViolation:
-        raise HTTPException(status_code=409, detail="Booking status already exists")
-    except psycopg2.OperationalError: 
-        raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
-
-# Add Booking
-
-@app.post("/bookings/", status_code=status.HTTP_201_CREATED)
-def create_booking(booking: BookingsCreate):
-    try:
-        bookings = add_bookings(booking)
-        if bookings is None:
-            raise HTTPException(status_code=503, detail="Database unavailable")
-        return {"bookings": bookings,
-                "message": "Booking added successfully!"}
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid ID")
-    except psycopg2.errors.UniqueViolation:
-        raise HTTPException(status_code=409, detail="Booking already exists")
-    except psycopg2.OperationalError: 
-        raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
-
-
-# Get a booking by booking id
-
-@app.get("/bookings/{booking_id}")
-def read_booking(booking_id: int):
-    bookings = get_bookings(booking_id)
-    if bookings is None:
-        raise HTTPException(status_code=404, detail="No booking found for this ID")
-    return {"bookings": bookings}
-
-#Update Business bu id
-
-@app.put("/businesses/{business_id}")
-def put_business(business_id: int,businesses: BusinessCreate):
-    try:
-        updated = update_business(business_id, businesses)
-        if updated is None:
-            raise HTTPException(status_code=404, detail="Business not found")
-        return updated
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid business ID")
-    except psycopg2.OperationalError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.errors.UniqueViolation:
-        raise HTTPException(status_code=409, detail="Business already exists")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
-
-# Update business location
-
-@app.put("/business_locations/{location_id}")
-def put_business_locations(location_id: int,business_locations: BusinessLocationsCreate):
-    try:
-        updated = update_business_location(location_id, business_locations)
-        if updated is None:
-            raise HTTPException(status_code=404, detail="Business location not found")
-        return updated
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid ID")
-    except psycopg2.OperationalError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
-    except psycopg2.Error:
-        raise HTTPException(status_code=500, detail="Database error occurred")
-
-
-@app.delete("/customers/{customer_id}")
+@app.delete("/customers/{customer_id}", tags=["Customers"])
 def remove_customer(customer_id: int):
     try:
         deleted = delete_customer(customer_id)
@@ -464,22 +374,56 @@ def remove_customer(customer_id: int):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-@app.delete("/treatments/{treatment_id}")
-def delete_treatment_endpoint(treatment_id: int):
+
+
+# Booking statuses
+
+@app.post("/booking_statuses/", status_code=status.HTTP_201_CREATED, tags=["Booking statuses"])
+def create_booking_status(booking_status: BookingStatusesCreate,
+):
     try:
-        deleted = delete_treatment(treatment_id)
-        if deleted is None:
-            raise HTTPException(status_code=404, detail="Treatment not found")
-        return deleted
+        booking_statuses = add_booking_statuses(booking_status)
+        if booking_statuses is None:
+            raise HTTPException(status_code=503, detail="Database unavailable")
+        return {"booking_statuses": booking_statuses,
+                "message": "Booking status added successfully!"}
     except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=409, detail="Cannot delete treatment because it is referenced by other records")
-    except psycopg2.OperationalError:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Booking status already exists")
+    except psycopg2.OperationalError: 
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-@app.delete("/bookings/{booking_id}")
+
+
+# Bookings
+
+@app.post("/bookings/", status_code=status.HTTP_201_CREATED, tags=["Bookings"])
+def create_booking(booking: BookingsCreate):
+    try:
+        bookings = add_bookings(booking)
+        if bookings is None:
+            raise HTTPException(status_code=503, detail="Database unavailable")
+        return {"bookings": bookings,
+                "message": "Booking added successfully!"}
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Booking already exists")
+    except psycopg2.OperationalError: 
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+@app.get("/bookings/{booking_id}", tags=["Bookings"])
+def read_booking(booking_id: int):
+    bookings = get_bookings(booking_id)
+    if bookings is None:
+        raise HTTPException(status_code=404, detail="No booking found for this ID")
+    return {"bookings": bookings}
+
+@app.delete("/bookings/{booking_id}", tags=["Bookings"])
 def delete_booking_endpoint(booking_id: int):
     try:
         deleted = delete_booking(booking_id)
@@ -492,8 +436,76 @@ def delete_booking_endpoint(booking_id: int):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-@app.delete("/employees/{employee_id}")
+
+@app.patch("/bookings/{booking_id}/status", tags=["Bookings"])
+def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
+    try:
+        updated = patch_booking_status(booking_id, status.booking_status)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Booking not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid booking status")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+
+
+# Update Business
+
+@app.put("/businesses/{business_id}", tags=["Businesses"])
+def put_business(business_id: int,businesses: BusinessCreate):
+    try:
+        updated = update_business(business_id, businesses)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Business not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid business ID")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Business already exists")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+
+# Update business location
+
+@app.put("/business_locations/{location_id}", tags=["Business locations"])
+def put_business_locations(location_id: int,business_locations: BusinessLocationsCreate):
+    try:
+        updated = update_business_location(location_id, business_locations)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Business location not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid ID")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+
+# Treatments delete
+
+@app.delete("/treatments/{treatment_id}", tags=["Treatments"])
+def delete_treatment_endpoint(treatment_id: int):
+    try:
+        deleted = delete_treatment(treatment_id)
+        if deleted is None:
+            raise HTTPException(status_code=404, detail="Treatment not found")
+        return deleted
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=409, detail="Cannot delete treatment because it is referenced by other records")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
+
+
+# Employees delete
+
+@app.delete("/employees/{employee_id}", tags=["Employees"])
 def delete_employee_endpoint(employee_id: int):
     try:
         deleted = delete_employee(employee_id)
@@ -506,16 +518,3 @@ def delete_employee_endpoint(employee_id: int):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-@app.patch("/bookings/{booking_id}/status")
-def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
-    try:
-        updated = patch_booking_status(booking_id, status.booking_status)
-        if updated is None:
-            raise HTTPException(status_code=404, detail="Booking not found")
-        return updated
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid booking status")
-    except psycopg2.OperationalError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
-

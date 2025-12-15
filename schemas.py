@@ -3,7 +3,7 @@
 # you send back to the client follows a certain structure
 
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date, datetime
 
 
@@ -15,7 +15,7 @@ class TreatmentsCreate(BaseModel):
     last_min_deal: bool
 
 class TreatmentCategoriesCreate(BaseModel):
-    category_name: str
+    category_name: str = Field(..., max_length=255)
 
 
 class CustomersCreate(BaseModel):
