@@ -420,7 +420,7 @@ def delete_user(user_id: int):
         return None
     try:
         with conn:
-            with conn.curson(cursor_factory=RealDictCursor) as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
                     DELETE FROM users
@@ -644,11 +644,11 @@ def add_bookings(bookings: BookingsCreate):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     """
-                INSERT INTO businesses (
+                INSERT INTO bookings (
                 location_id,treatment_id,customer_id,employee_id,
                 business_id,booked_date,time_start,time_stop,
                 notes,booking_status,payment_confirmed)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *;
                 """,
                 (bookings.location_id,bookings.treatment_id,bookings.customer_id,bookings.employee_id,

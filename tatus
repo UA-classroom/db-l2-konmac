@@ -1,0 +1,36 @@
+[1mdiff --cc app.py[m
+[1mindex c825910,edee6f1..0000000[m
+[1m--- a/app.py[m
+[1m+++ b/app.py[m
+[36m@@@ -517,31 -518,3 +529,16 @@@[m [mdef delete_employee_endpoint(employee_i[m
+          raise HTTPException(status_code=503, detail="Database unavailable")[m
+      except psycopg2.Error:[m
+          raise HTTPException(status_code=500, detail="Database error occurred")[m
+[32m +    [m
+[32m +@app.patch("/bookings/{booking_id}/status")[m
+[32m +def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):[m
+[32m +    try:[m
+[32m +        updated = patch_booking_status(booking_id, status.booking_status)[m
+[32m +        if updated is None:[m
+[32m +            raise HTTPException(status_code=404, detail="Booking not found")[m
+[32m +        return updated[m
+[32m +    except psycopg2.errors.ForeignKeyViolation:[m
+[32m +        raise HTTPException(status_code=400, detail="Invalid booking status")[m
+[32m +    except psycopg2.OperationalError:[m
+[32m +        raise HTTPException(status_code=503, detail="Database unavailable")[m
+[32m +[m
+[31m- @app.put("/treatments/{treatment_id}")[m
+[31m- def put_treatments(treatment_id: int,treatment: TreatmentsCreate):[m
+[31m-     try:[m
+[31m-         updated = update_treatment(treatment_id, treatment)[m
+[31m-         if updated is None:[m
+[31m-             raise HTTPException(status_code=404, detail="Treatment not found")[m
+[31m-         return updated[m
+[31m-     except psycopg2.errors.ForeignKeyViolation:[m
+[31m-         raise HTTPException(status_code=400, detail="Invalid business ID")[m
+[31m-     except psycopg2.OperationalError:[m
+[31m-         raise HTTPException(status_code=503, detail="Database unavailable")[m
+[31m-     except psycopg2.errors.UniqueViolation:[m
+[31m-         raise HTTPException(status_code=409, detail="Treatment already exists")[m
+[31m-     except psycopg2.Error:[m
+[31m-         raise HTTPException(status_code=500, detail="Database error occurred")[m
