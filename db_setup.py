@@ -1,6 +1,6 @@
 import os  # Importing OS so I can read variables from my .env file where i store database login information
 
-import psycopg2  # Module that lets me connect to PostgreSQL database / run commands 
+import psycopg2
 from dotenv import (
     load_dotenv,  # Reads .env file and loads the values into environment variables
 )
@@ -8,7 +8,11 @@ from dotenv import (
 load_dotenv(override=True)
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
+USER = os.getenv("user name in pq")
 PASSWORD = os.getenv("PASSWORD")
+HOST = os.getenv("Host name")
+PORT = os.getenv("Port code")
+
 
 if not DATABASE_NAME or not PASSWORD:
     raise ValueError("DATABASE_NAME and PASSWORD must be set in .env file")
@@ -16,38 +20,31 @@ if not DATABASE_NAME or not PASSWORD:
 def get_connection():
     
     """
-    Function establishes a connection to the database
-    Uses database_name and password from env variables
-    Prints success/fail messages and returns None if connection has failed
+    Function establishes a connection to the database on VG level
+    Uses variables from env file to keep sensitive data private
+    And makes the function reusable
     """
-    try:
-        connection = psycopg2.connect(
-            dbname=DATABASE_NAME,
-            user="postgres",
-            password=PASSWORD,
-            host="localhost",
-            port="5432",
-    )
-        print("Database connection established successfully")
-        return connection
-    except psycopg2.errors.OperationalError:
-        raise
+
+    connection = psycopg2.connect(
+        dbname=DATABASE_NAME,
+        user=USER,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT,
+)
+    return connection 
 
 def create_tables():
     """
     Creates database tables by running SQL commands from setup.sql file
-    Handles errors during table creation
     """
     connection = get_connection()
-    try:
-        with connection:
-            with connection.cursor() as cursor:
-                with open("setup.sql", "r", encoding="utf-8") as f:
-                    sql = f.read()
-                cursor.execute(sql)
-            print("Tables created successfully.")
-    except psycopg2.errors.OperationalError:
-        raise
+    with connection:
+        with connection.cursor() as cursor:
+            with open("setup.sql", "r", encoding="utf-8") as f:
+                sql = f.read()
+            cursor.execute(sql)
+        print("Tables created successfully.")
 
 
 if __name__ == "__main__":
