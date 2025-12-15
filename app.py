@@ -529,18 +529,6 @@ def delete_employee_endpoint(employee_id: int):
         raise HTTPException(status_code=503, detail="Database unavailable")
     except psycopg2.Error:
         raise HTTPException(status_code=500, detail="Database error occurred")
-    
-@app.patch("/bookings/{booking_id}/status", tags=["Bookings"])
-def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
-    try:
-        updated = patch_booking_status(booking_id, status.booking_status)
-        if updated is None:
-            raise HTTPException(status_code=404, detail="Booking not found")
-        return updated
-    except psycopg2.errors.ForeignKeyViolation:
-        raise HTTPException(status_code=400, detail="Invalid booking status")
-    except psycopg2.OperationalError:
-        raise HTTPException(status_code=503, detail="Database unavailable")
 
 @app.put("/treatments/{treatment_id}", tags=["Treatments"])
 def put_treatments(treatment_id: int,treatment: TreatmentsCreate):
