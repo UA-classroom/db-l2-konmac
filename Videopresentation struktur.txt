@@ -1,0 +1,30 @@
+Videopresentation
+
+Förklara först hur vi försökte lösa problemen innan vi började att koda. Prata om detta projektet som att det är ett riktigt arbetsprojekt.
+Dataintregity was a priority
+
+Vilka problem löser vi?
+Hur designade vi en lösning?
+Hur hade detta använts i verkliga livet?
+
+Bakgrundsinfo. Vilken webbsida vi har valt och varför.
+Utmaningar under grundstruktureringen av databasen.
+
+Miro delar vi upp på de delar vi själva jobbat med. Lägg till sticky notes ytterligare om nödvändigt. Klura på vad som var svårast här i strukturen
+Val av taktik vid samarbete. Uppdelning och tankar kring detta.
+Nämn att vi valde att dela upp databasen till enstart, för att sedan synka ihop logiken.
+
+Dela allt vi lärt oss under tiden, då det även är elever som ser denna videon. Svårigheter, lärdomar, utmaningar etc.
+
+Miroboarden
+
+SQL, Koda backend
+
+Seperation of cencerns
+Errorhandlingen. Förklara valen vi gjort.
+Github-arbete med branches
+Hur skulle vi kunna förbättrea/expandera projektet.
+Vad hade vi kunnat göra annorlunda nästa gång?
+
+
+Frontend

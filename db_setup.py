@@ -30,8 +30,7 @@ def get_connection():
     )
         print("Database connection established successfully")
         return connection
-    except Exception as e:
-        print(f"Connection failed - {e}")
+    except psycopg2.errors.OperationalError:
         raise
 
 def create_tables():
@@ -40,9 +39,6 @@ def create_tables():
     Handles errors during table creation
     """
     connection = get_connection()
-    if connection is None:
-        print("Unable to connect to the database")
-        return
     try:
         with connection:
             with connection.cursor() as cursor:
@@ -50,8 +46,8 @@ def create_tables():
                     sql = f.read()
                 cursor.execute(sql)
             print("Tables created successfully.")
-    except Exception as e:
-            print(f"Failed to create tables - {e}")
+    except psycopg2.errors.OperationalError:
+        raise
 
 
 if __name__ == "__main__":
