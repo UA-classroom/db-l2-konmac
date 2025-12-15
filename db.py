@@ -710,3 +710,33 @@ def patch_booking_status(booking_id: int, booking_status: int):
                 (booking_status, booking_id),
             )
             return cur.fetchone()
+
+def update_treatment(treatment_id: int, treatment: TreatmentsCreate):
+    conn = get_connection()
+    if conn is None:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    UPDATE treatments
+                    SET
+                        treatment_name = %s,
+                        treatment_description = %s,
+                        category_id = %s,
+                        time_duration = %s,
+                        last_min_deal = %s
+                    WHERE treatment_id = %s
+                    RETURNING 
+                        treatment_name, treatment_description, category_id,
+                        time_duration,last_min_deal;
+                    """,
+                    (
+                    treatment.treatment_name, treatment.treatment_description,
+                    treatment.category_id,treatment.time_duration,treatment.last_min_deal,treatment_id,
+                )  
+                )
+                return cur.fetchone()
+    finally:
+        conn.close()
