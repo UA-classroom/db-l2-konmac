@@ -32,8 +32,10 @@ from db import (
     update_business_location,
     update_customer,
     update_user,
+    update_treatment
 )
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from schemas import (
     BookingsCreate,
     BookingStatusesCreate,
@@ -50,6 +52,15 @@ from schemas import (
 )
 
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 """
@@ -519,3 +530,18 @@ def patch_booking_status_endpoint(booking_id: int, status: BookingStatusPatch):
     except psycopg2.OperationalError:
         raise HTTPException(status_code=503, detail="Database unavailable")
 
+@app.put("/treatments/{treatment_id}")
+def put_treatments(treatment_id: int,treatment: TreatmentsCreate):
+    try:
+        updated = update_treatment(treatment_id, treatment)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="Treatment not found")
+        return updated
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Invalid business ID")
+    except psycopg2.OperationalError:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    except psycopg2.errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Treatment already exists")
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error occurred")
