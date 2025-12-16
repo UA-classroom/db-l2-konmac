@@ -9,8 +9,8 @@ export default function Footer() {
           <div className="footer-column">
             <h4>Konto</h4>
             <ul>
-              <li><Link to="/account">Mina bokningar</Link></li>
-              <li><Link to="/account">Mina favoriter</Link></li>
+              <li><Link to="/account/bookings">Mina bokningar</Link></li>
+              <li><Link to="/favorites">Mina favoriter</Link></li>
               <li><Link to="/account">Använd presentkort</Link></li>
               <li><Link to="/account">Använd friskvårdskort</Link></li>
             </ul>

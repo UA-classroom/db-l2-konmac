@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Calendar, Heart, User, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
-interface HeaderProps {
-  onSearch?: (query: string) => void;
-}
-
-export default function Header({ onSearch }: HeaderProps) {
+export default function Header() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -78,9 +76,17 @@ export default function Header({ onSearch }: HeaderProps) {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
                   <User size={20} />
+                  {user && <span className="user-name">{user.first_name}</span>}
                 </button>
                 {showUserMenu && (
                   <div className="user-dropdown">
+                    {user && (
+                      <div className="user-info">
+                        <div className="user-name-full">{user.first_name} {user.last_name}</div>
+                        <div className="user-email">{user.email}</div>
+                      </div>
+                    )}
+                    <div className="dropdown-divider"></div>
                     <Link to="/account" onClick={() => setShowUserMenu(false)}>
                       <User size={18} />
                       <span>Mitt konto</span>

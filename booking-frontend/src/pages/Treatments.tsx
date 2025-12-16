@@ -1,24 +1,57 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getTreatments, getTreatmentCategories } from '../services/api';
 import type { Treatment, TreatmentCategory } from '../types';
-import { Clock, DollarSign, Search } from 'lucide-react';
+import { Clock, DollarSign, Search, Heart } from 'lucide-react';
+import { getTreatmentPrice, formatPrice } from '../utils/pricing';
 import './Treatments.css';
 
 export default function Treatments() {
   const { categoryId } = useParams();
+  const [searchParams] = useSearchParams();
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [categories, setCategories] = useState<TreatmentCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(
     categoryId ? parseInt(categoryId) : null
   );
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   useEffect(() => {
     fetchData();
+    // Load favorites from localStorage
+    const storedFavorites = localStorage.getItem('favorites');
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
   }, []);
+
+  useEffect(() => {
+    const urlSearchQuery = searchParams.get('q');
+    if (urlSearchQuery) {
+      setSearchQuery(urlSearchQuery);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (categoryId) {
+      setSelectedCategory(parseInt(categoryId));
+    }
+  }, [categoryId]);
+
+  const toggleFavorite = (e: React.MouseEvent, treatmentId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newFavorites = favorites.includes(treatmentId)
+      ? favorites.filter(id => id !== treatmentId)
+      : [...favorites, treatmentId];
+
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+  };
 
   const fetchData = async () => {
     try {
@@ -126,6 +159,12 @@ export default function Treatments() {
                         {category.category_name}
                       </span>
                     )}
+                    <button
+                      className={`favorite-button ${favorites.includes(treatment.treatment_id) ? 'active' : ''}`}
+                      onClick={(e) => toggleFavorite(e, treatment.treatment_id)}
+                    >
+                      <Heart size={20} fill={favorites.includes(treatment.treatment_id) ? 'currentColor' : 'none'} />
+                    </button>
                   </div>
                   <div className="treatment-content">
                     <h3>{treatment.treatment_name}</h3>
@@ -139,7 +178,7 @@ export default function Treatments() {
                       </span>
                       <span className="treatment-price">
                         <DollarSign size={16} />
-                        {treatment.price} kr
+                        {formatPrice(getTreatmentPrice(treatment.category_id, treatment.time_duration))}
                       </span>
                     </div>
                     <button className="btn btn-primary btn-book">

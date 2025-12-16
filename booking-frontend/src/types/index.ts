@@ -4,7 +4,9 @@ export interface Treatment {
   treatment_name: string;
   treatment_description: string;  // Backend uses treatment_description
   time_duration: number;  // Backend uses time_duration
+  price?: number;
   image_id?: number;
+  image_url?: string;
   last_min_deal: boolean;
   created_at?: string;
 }

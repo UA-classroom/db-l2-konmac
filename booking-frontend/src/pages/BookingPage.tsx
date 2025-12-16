@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTreatments, getBusinesses, getBusinessLocations, createBooking } from '../services/api';
 import type { Treatment, Business, BusinessLocation } from '../types';
-import { Calendar, Clock, MapPin, DollarSign } from 'lucide-react';
+import { Clock, MapPin, DollarSign } from 'lucide-react';
 import './BookingPage.css';
 
 export default function BookingPage() {
@@ -172,7 +172,7 @@ export default function BookingPage() {
                   <option value="">Välj plats</option>
                   {locations.map((location) => (
                     <option key={location.location_id} value={location.location_id}>
-                      {location.address}, {location.city}
+                      {location.street_address}, {location.city}
                     </option>
                   ))}
                 </select>
@@ -180,7 +180,7 @@ export default function BookingPage() {
                   <div className="location-info">
                     <MapPin size={16} />
                     <span>
-                      {selectedLocation.address}, {selectedLocation.postal_code} {selectedLocation.city}
+                      {selectedLocation.street_address}, {selectedLocation.postal_code} {selectedLocation.city}
                     </span>
                   </div>
                 )}

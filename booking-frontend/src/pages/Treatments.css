@@ -99,6 +99,34 @@
   transition: transform 0.3s ease;
 }
 
+.favorite-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.favorite-button.active {
+  color: #e74c3c;
+}
+
+.favorite-button:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
 .treatment-card:hover .treatment-image img {
   transform: scale(1.05);
 }

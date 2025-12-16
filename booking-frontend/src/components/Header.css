@@ -112,10 +112,23 @@
 .user-button {
   background: var(--accent-color);
   color: white;
+  gap: 0.5rem;
 }
 
 .user-button:hover {
   background: #429684;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .user-name {
+    display: block;
+  }
 }
 
 .user-menu-container {
@@ -129,9 +142,24 @@
   background: var(--bg-white);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
-  min-width: 220px;
+  min-width: 250px;
   padding: 0.5rem 0;
   z-index: 1000;
+}
+
+.user-info {
+  padding: 1rem 1.25rem;
+}
+
+.user-name-full {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.user-email {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
 .user-dropdown a {
