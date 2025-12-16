@@ -271,7 +271,7 @@ def add_users(conn, user: UsersCreate):
                 INSERT INTO users (email, password, first_name, last_name, phone_number, date_of_birth, gender_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 RETURNING user_id, email, first_name, last_name, phone_number, date_of_birth, gender_id, created_at; 
-                """, # I dont return it all to hide the password but I accept it in insert
+                """, 
                 (user.email, user.password, user.first_name, user.last_name, user.phone_number, user.date_of_birth, user.gender_id),
             )
             inserted = cur.fetchone()
@@ -291,7 +291,7 @@ def get_users(conn):
                     gender_id,
                     created_at
                 FROM users;
-                """) # Skipping password to protect it
+                """) 
             users = cur.fetchall()
         return users
 
