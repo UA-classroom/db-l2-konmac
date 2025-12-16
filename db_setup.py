@@ -13,10 +13,6 @@ PASSWORD = os.getenv("PASSWORD")
 HOST = os.getenv("HOST")
 PORT = os.getenv("PORT")
 
-
-if not DATABASE_NAME or not PASSWORD:
-    raise ValueError("DATABASE_NAME and PASSWORD must be set in .env file")
-
 def get_connection():
     
     """
@@ -24,15 +20,14 @@ def get_connection():
     Uses variables from env file to keep sensitive data private
     And makes the function reusable
     """
-
-    connection = psycopg2.connect(
+    return psycopg2.connect(
         dbname=DATABASE_NAME,
         user=USER,
         password=PASSWORD,
         host=HOST,
         port=PORT,
-)
-    return connection 
+        )
+
 
 def create_tables():
     """
