@@ -8,10 +8,10 @@ from dotenv import (
 load_dotenv(override=True)
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
-USER = os.getenv("user name in pq")
+USER = os.getenv("USER")
 PASSWORD = os.getenv("PASSWORD")
-HOST = os.getenv("Host name")
-PORT = os.getenv("Port code")
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
 
 
 if not DATABASE_NAME or not PASSWORD:
