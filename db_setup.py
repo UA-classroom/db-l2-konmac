@@ -1,40 +1,47 @@
-import os
+import os  # Importing OS so I can read variables from my .env file where i store database login information
 
 import psycopg2
-from dotenv import load_dotenv
+from dotenv import (
+    load_dotenv,  # Reads .env file and loads the values into environment variables
+)
 
 load_dotenv(override=True)
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
+USER = os.getenv("USER")
 PASSWORD = os.getenv("PASSWORD")
-
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
 
 def get_connection():
+    
     """
-    Function that returns a single connection
-    In reality, we might use a connection pool, since
-    this way we'll start a new connection each time
-    someone hits one of our endpoints, which isn't great for performance
+    Function establishes a connection to the database on VG level
+    Uses variables from env file to keep sensitive data private
+    And makes the function reusable
     """
     return psycopg2.connect(
         dbname=DATABASE_NAME,
-        user="postgres",  # change if needed
+        user=USER,
         password=PASSWORD,
-        host="localhost",  # change if needed
-        port="5432",  # change if needed
-    )
+        host=HOST,
+        port=PORT,
+        )
 
 
 def create_tables():
     """
-    A function to create the necessary tables for the project.
+    Creates database tables by running SQL commands from setup.sql file
     """
     connection = get_connection()
-    # Implement
-    pass
+    with connection:
+        with connection.cursor() as cursor:
+            with open("setup.sql", "r", encoding="utf-8") as f:
+                sql = f.read()
+            cursor.execute(sql)
+        print("Tables created successfully.")
 
 
 if __name__ == "__main__":
-    # Only reason to execute this file would be to create new tables, meaning it serves a migration file
     create_tables()
-    print("Tables created successfully.")
+
